@@ -449,3 +449,50 @@ CTEST(cbor, create_encode)
   enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), map);
   ASSERT_EQUAL(7, enc_sz);
 }
+
+CTEST(cbor, set)
+{
+    cn_cbor *cb;
+    cn_cbor *first_res, *second_res;
+    cn_cbor_errback err;
+    ssize_t enc_sz_res1, enc_sz_res2, enc_sz;
+    unsigned char encoded_res1[1024], encoded_res2[1024], encoded[1024];
+
+    first_res = cn_cbor_map_create(CONTEXT_NULL_COMMA &err);
+    cn_cbor_mapput_int(first_res, 1, cn_cbor_int_create(2 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    enc_sz_res1 = cn_cbor_encoder_write(encoded_res1, 0, sizeof(encoded_res1), first_res);
+
+    second_res = cn_cbor_map_create(CONTEXT_NULL_COMMA &err);
+    cn_cbor_mapput_int(second_res, 1, cn_cbor_int_create(1 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    cn_cbor_mapput_string(second_res, "2", cn_cbor_int_create(2 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    enc_sz_res2 = cn_cbor_encoder_write(encoded_res2, 0, sizeof(encoded_res2), second_res);
+
+    cb = cn_cbor_map_create(CONTEXT_NULL_COMMA &err);
+    cn_cbor_mapset_int(cb, 1, cn_cbor_int_create(2 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb);
+    ASSERT_TRUE(err.err == CN_CBOR_NO_ERROR);
+    ASSERT_TRUE(enc_sz == enc_sz_res1);
+    ASSERT_TRUE(memcmp(encoded_res1, encoded, enc_sz_res1) == 0);
+    cn_cbor_free(cb);
+
+    cb = cn_cbor_map_create(CONTEXT_NULL_COMMA &err);
+    cn_cbor_mapput_int(cb, 1, cn_cbor_int_create(1 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    cn_cbor_mapset_int(cb, 1, cn_cbor_int_create(2 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb);
+    ASSERT_TRUE(err.err == CN_CBOR_NO_ERROR);
+    ASSERT_TRUE(enc_sz == enc_sz_res1);
+    ASSERT_TRUE(memcmp(encoded_res1, encoded, enc_sz_res1) == 0);
+    cn_cbor_free(cb);
+
+    cb = cn_cbor_map_create(CONTEXT_NULL_COMMA &err);
+    cn_cbor_mapput_int(cb, 1, cn_cbor_int_create(1 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    cn_cbor_mapset_string(cb, "2", cn_cbor_int_create(2 CONTEXT_NULL, &err) CONTEXT_NULL, &err);
+    enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb);
+    ASSERT_TRUE(err.err == CN_CBOR_NO_ERROR);
+    ASSERT_TRUE(enc_sz == enc_sz_res2);
+    ASSERT_TRUE(memcmp(encoded_res2, encoded, enc_sz_res2) == 0);
+    cn_cbor_free(cb);
+    cn_cbor_free(first_res);
+    cn_cbor_free(second_res);
+
+}
