@@ -37,6 +37,51 @@ void cn_cbor_free(cn_cbor* cb CBOR_CONTEXT) {
   }
 }
 
+cn_cbor* cn_cbor_mapfind_int(const cn_cbor* cb, int key) {
+  cn_cbor* cp;
+  assert(cb);
+  for (cp = cb->first_child; cp; cp = cp->next->next) {
+    switch(cp->type) {
+      case CN_CBOR_UINT:
+        if (cp->v.uint == (unsigned long)key) {
+          return cp;
+        }
+            break;
+      case CN_CBOR_INT:
+        if (cp->v.sint == (long)key) {
+          return cp;
+        }
+            break;
+      default:
+        ; // skip non-integer keys
+    }
+  }
+  return NULL;
+}
+
+cn_cbor* cn_cbor_mapfind_string(const cn_cbor* cb, const char* key) {
+  cn_cbor *cp;
+  int keylen;
+  assert(cb);
+  assert(key);
+  keylen = strlen(key);
+  for (cp = cb->first_child; cp; cp = cp->next->next) {
+    switch(cp->type) {
+      case CN_CBOR_TEXT: // fall-through
+      case CN_CBOR_BYTES:
+        if (keylen != cp->length) {
+          continue;
+        }
+            if (memcmp(key, cp->v.str, keylen) == 0) {
+              return cp;
+            }
+      default:
+        ; // skip non-string keys
+    }
+  }
+  return NULL;
+}
+
 #ifndef CBOR_NO_FLOAT
 static double decode_half(int half) {
   int exp = (half >> 10) & 0x1f;

@@ -8,6 +8,7 @@ set ( cbor_srcs
       cn-encoder.c
       cn-error.c
       cn-get.c
+      cn-set.c
 )
 
 if (align_reads)

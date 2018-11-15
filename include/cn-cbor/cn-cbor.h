@@ -226,6 +226,24 @@ typedef struct cn_cbor_context {
 cn_cbor* cn_cbor_decode(const uint8_t *buf, size_t len CBOR_CONTEXT, cn_cbor_errback *errp);
 
 /**
+ * Get a pointer on CBOR object from a CBOR map that has the given integer value.
+ *
+ * @param[in]  cb           The CBOR map
+ * @param[in]  key          The integer to look up in the map
+ * @return                  The pointer on the matching object, or NULL if the value is not found
+ */
+cn_cbor* cn_cbor_mapfind_int(const cn_cbor* cb, int key);
+
+/**
+ * Get a pointer on CBOR object from a CBOR map that has the given string value.
+ *
+ * @param[in]  cb           The CBOR map
+ * @param[in]  key          The string to look up in the map
+ * @return                  The pointer on the matching object, or NULL if the value is not found
+ */
+cn_cbor* cn_cbor_mapfind_string(const cn_cbor* cb, const char* key);
+
+/**
  * Get a value from a CBOR map that has the given string as a key.
  *
  * @param[in]  cb           The CBOR map
@@ -400,6 +418,41 @@ bool cn_cbor_mapput_int(cn_cbor* cb_map,
  * @return                   True on success
  */
 bool cn_cbor_mapput_string(cn_cbor* cb_map,
+                           const char* key, cn_cbor* cb_value
+                           CBOR_CONTEXT,
+                           cn_cbor_errback *errp);
+
+/**
+ * Change a CBOR object value in a map with an integer key. If there is
+ * no such key in map it puts key with specified value.
+ *
+ * @param[in]   cb_map       The map to insert into
+ * @param[in]   key          The integer key
+ * @param[in]   cb_value     The value
+ * @param[in]   CBOR_CONTEXT Allocation context (only if USE_CBOR_CONTEXT is defined)
+ * @param[out]  errp         Error
+ * @return                   True on success
+ */
+bool cn_cbor_mapset_int(cn_cbor* cb_map,
+                        int64_t key, cn_cbor* cb_value
+                        CBOR_CONTEXT,
+                        cn_cbor_errback *errp);
+
+/**
+ * Change a CBOR object value in a map with a string key. If there is
+ * no such key in map it puts key with specified value.
+ *
+ * @note: do not call this routine with untrusted string data.  It may calls
+ * strlen, and requires a properly NULL-terminated key.
+ *
+ * @param[in]   cb_map       The map to insert into
+ * @param[in]   key          The string key
+ * @param[in]   cb_value     The value
+ * @param[in]   CBOR_CONTEXT Allocation context (only if USE_CBOR_CONTEXT is defined)
+ * @param[out]  errp         Error
+ * @return                   True on success
+ */
+bool cn_cbor_mapset_string(cn_cbor* cb_map,
                            const char* key, cn_cbor* cb_value
                            CBOR_CONTEXT,
                            cn_cbor_errback *errp);
