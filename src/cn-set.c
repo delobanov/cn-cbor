@@ -26,6 +26,9 @@ bool cn_cbor_mapset_int(cn_cbor* cb_map,
     cb_value->next = cb_key->next->next;
     cb_value->parent = cb_key->next->parent;
 
+    if (cb_key->parent->last_child == cb_key->next){
+        cb_key->parent->last_child = cb_value;
+    }
     cb_key->next->parent = NULL;
     cn_cbor_free(cb_key->next);
 
@@ -56,6 +59,9 @@ bool cn_cbor_mapset_string(cn_cbor* cb_map,
     cb_value->next = cb_key->next->next;
     cb_value->parent = cb_key->next->parent;
 
+    if (cb_key->parent->last_child == cb_key->next){
+        cb_key->parent->last_child = cb_value;
+    }
     cb_key->next->parent = NULL;
     cn_cbor_free(cb_key->next);
 
